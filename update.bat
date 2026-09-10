@@ -4,7 +4,7 @@ setlocal
 
 title WarSpectra Bot - Update
 
-set "PROJECT_DIR=E:\Discord-Bot-WS-Arma"
+set "PROJECT_DIR=E:\Discord-Bot-WS-ArmaRef"
 set "GIT_PATH=E:\Git"
 set "NODE_PATH=E:\node-portable"
 
@@ -19,7 +19,7 @@ if errorlevel 1 (
 )
 
 echo ==========================================
-echo        WAR SPECTRA BOT - UPDATE
+echo        WAR SPECTRA REFORGER BOT - UPDATE
 echo ==========================================
 echo.
 

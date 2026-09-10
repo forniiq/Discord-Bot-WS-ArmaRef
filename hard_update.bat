@@ -4,14 +4,14 @@ setlocal
 
 title WarSpectra Bot - HARD UPDATE
 
-set "PROJECT_DIR=E:\Discord-Bot-WS-Arma"
+set "PROJECT_DIR=E:\Discord-Bot-WS-ArmaRef"
 set "GIT_PATH=E:\Git"
 set "NODE_PATH=E:\node-portable"
 
 set "PATH=%GIT_PATH%\cmd;%GIT_PATH%\bin;%NODE_PATH%;%PATH%"
 
 echo ==========================================
-echo      WAR SPECTRA BOT - HARD UPDATE
+echo      WAR SPECTRA REFORGER BOT - HARD UPDATE
 echo ==========================================
 echo.
 echo WARNING!
