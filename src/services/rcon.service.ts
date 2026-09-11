@@ -12,9 +12,17 @@ class RconService {
             connectionType: "udp4",
         });
 
-        this.rcon.on("error", (error) => {
-            console.error("[RCON ERROR]", error);
+        this.rcon.on("onConnect", (connected) => {
+            if (connected) {
+                console.log("[RCON] Соединение установлено");
+            } else {
+                console.warn("[RCON] Соединение потеряно");
+            }
         });
+    }
+
+    isConnected(): boolean {
+        return this.rcon.isRconConnected;
     }
 
     async connect(): Promise<void> {
@@ -42,7 +50,6 @@ class RconService {
 
     private send(command: string): Promise<string> {
         return new Promise((resolve, reject) => {
-
             let processingReceived = false;
 
             const timeout = setTimeout(() => {
@@ -73,6 +80,14 @@ class RconService {
 
             this.rcon.commandSend(command);
         });
+    }
+
+    private sendWithoutResponse(command: string): void {
+        if (!this.isConnected()) {
+            throw new Error("RCON_OFFLINE");
+        }
+
+        this.rcon.commandSend(command);
     }
 
     async players(): Promise<RconPlayer[]> {
@@ -127,12 +142,12 @@ class RconService {
         return players;
     }
 
-    async restart(): Promise<string> {
-        return await this.send("#restart");
+    async restart(): Promise<void> {
+        this.sendWithoutResponse("#restart");
     }
 
-    async shutdown(): Promise<string> {
-        return await this.send("#shutdown");
+    async shutdown(): Promise<void> {
+        this.sendWithoutResponse("#shutdown");
     }
 
     async kick(playerId: number): Promise<string> {

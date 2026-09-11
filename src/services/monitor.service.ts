@@ -7,6 +7,7 @@ import { readFile, writeFile } from "node:fs/promises";
 
 class MonitoringService {
     private client: Client | null = null;
+    private attempts: number = 0;
 
     init(client: Client) {
         this.client = client;
@@ -32,18 +33,32 @@ class MonitoringService {
     async update() {
         if (!this.client) return;
 
-        const players = await rcon.players();
+        let embed: EmbedBuilder;
 
-        const embed = this.createEmbedHead(players.length);
+        if (!rcon.isConnected()) {
+            this.attempts++;
 
-        if (players.length !== 0) {
-            const playersField = this.createPlayersField(players);
-            embed.addFields(playersField);
+            if (this.attempts >= 3) {
+                embed = this.createOfflineEmbed();
+            } else {
+                return;
+            }
         } else {
-            embed.addFields({
-                name: "ИГРОКИ",
-                value: "Игроков онлайн нет.",
-            });
+            this.attempts = 0;
+
+            const players = await rcon.players();
+
+            embed = this.createEmbedHead(players.length);
+
+            if (players.length !== 0) {
+                const playersField = this.createPlayersField(players);
+                embed.addFields(playersField);
+            } else {
+                embed.addFields({
+                    name: "ИГРОКИ",
+                    value: "Игроков онлайн нет.",
+                });
+            }
         }
 
         const channel = await this.client.channels.fetch(
@@ -110,7 +125,7 @@ class MonitoringService {
             .setDescription(
                 [
                     "```yaml",
-                    `ОНЛАЙН      | ${online} Игроков`,
+                    `ОНЛАЙН      | ${online}/${SERVER_CONFIG.server.maxOnline}`,
                     `СЕРВЕР      | ${SERVER_CONFIG.server.ip}:${SERVER_CONFIG.server.port}`,
                     "```",
                     "",
@@ -130,6 +145,24 @@ class MonitoringService {
             name: "ИГРОКИ",
             value: playerList,
         };
+    }
+
+    private createOfflineEmbed() {
+        const unix = Math.floor(Date.now() / 1000);
+
+        return new EmbedBuilder()
+            .setTitle("===== МОНИТОРИНГ =====")
+            .setColor("#48493d")
+            .setDescription(
+                [
+                    "```yaml",
+                    "СТАТУС      | 🔴 СЕРВЕР ВЫКЛЮЧЕН",
+                    `СЕРВЕР      | ${SERVER_CONFIG.server.ip}:${SERVER_CONFIG.server.port}`,
+                    "```",
+                    "",
+                    `*ПРОВЕРЕНО: <t:${unix}:R>`,
+                ].join("\n")
+            );
     }
 }
 
